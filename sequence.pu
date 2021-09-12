@@ -1,0 +1,49 @@
+@startuml iine sequence
+
+' autoactivate on
+autonumber
+
+participant client
+participant httpserver
+participant websocketserver
+
+note over client
+    Webアクセス
+endnote
+client -> httpserver : GET
+' activate client
+httpserver -->> client : index.html
+client -> client : 表示
+
+note over client
+    WebSocket接続
+endnote
+client ->> websocketserver : Connect
+note right
+    websocket.on('connect')
+endnote
+websocketserver -> websocketserver : clientNum++
+loop clients.forEach
+    websocketserver ->> client : Message(clientNum)
+    client -> client : 表示
+' |||
+end
+
+note over client
+    イイねpush
+endnote
+client ->> websocketserver : Message(イイね)
+note right
+    websocket.on('message')
+endnote
+websocketserver -> websocketserver : actionNum++
+client ->> client : actionNum++
+client ->> client : 表示
+loop clients.forEach
+    websocketserver ->> client : Message(actionNum)
+    client -> client : 表示
+' |||
+end
+
+
+@enduml
