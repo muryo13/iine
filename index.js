@@ -1,37 +1,40 @@
-// Websocket
-var server = require('ws').Server;
-var s = new server({port:5001});
+var express = require('express');
+var app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http)
+const port = process.env.PORT || 3000;
+
 var participantNum = 0;
 var iineNum = 0;
 
-s.on('connection',function(ws){
-    participantNum++;
-    console.log("paticipantNum = " + participantNum);
-    s.clients.forEach(function(client){
-        client.send("participantNum," + participantNum);
-    });
-
-    ws.on('message',function(message){
-        // console.log("Received: "+message);
-        iineNum++;
-        s.clients.forEach(function(client){
-            client.send("iineNum," + iineNum);
-        });
-    });
-
-    ws.on('close',function(){
-        console.log('I lost a client');
-    });
-
-});
-
-// Express
-var express = require('express');
-var app = express();
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
-app.listen(80, function() {
 
-});
+function onConnection(socket) {
+    participantNum++;
+    emitParticipantNum(socket);
+
+    socket.on('message', function (msg) {
+        // console.log(msg);
+        iineNum++;
+        socket.emit("message", "iineNum," + iineNum);
+        socket.broadcast.emit("message", "iineNum," + iineNum);
+    });
+
+    socket.on("disconnect", (reason) => {
+        participantNum--;
+        emitParticipantNum(socket);
+    });
+
+    function emitParticipantNum(socket) {
+        console.log("participantNum = " + participantNum);
+        socket.emit("message", "participantNum," + participantNum);
+        socket.broadcast.emit("message", "participantNum," + participantNum);          
+    }
+}
+
+io.on('connection', onConnection);
+
+http.listen(port, () => console.log('listening on port ' + port));
