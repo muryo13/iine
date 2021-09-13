@@ -1,0 +1,20 @@
+.btn-push {
+    display: inline-block;
+    max-width: 420px;
+    text-align: center;
+    background-color: #ffa300;
+    font-size: 24px;
+    color: #FFF;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border-bottom: 6px solid #d37800;
+}
+
+.btn-push:active {
+    transform: translateY(6px);
+    border-bottom: none;
+}
+
+body {text-align:center}
