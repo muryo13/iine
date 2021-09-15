@@ -7,26 +7,34 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>iine!!</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="css/epoch.min.css">
 </head>
 
 <body>
     <p class=title>iine!!</p>
-    <div>
-        <span>あなたのいいね：</span>
-        <span id="iineNum">0</span>
+    <!-- <span>あなたのいいね：</span> -->
+    <div class=maru>
+        <span class=maru-text id="iineNum">0</span>
     </div>
-    <div>
-        <span>参加している人：</span>
-        <span id="participantNum">0</span>
+    <!-- <span>参加している人：</span> -->
+    <div class=maru>
+        <span class=maru-text id="participantNum">0</span>
     </div>
-    <div>
-        <span>みんなのいいね：</span>
-        <span id="allIineNum">0</span>
+    <!-- <span>みんなのいいね：</span> -->
+    <div class="maru">
+        <span class=maru-text id="allIineNum">0</span>
     </div>
     <p></p>
     <button class="btn-push" id="sample">いいね</button>
+    <p>
+        <canvas id="myChart"></canvas>
+    </p>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@1.27.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.1.0/dist/chartjs-adapter-luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
     <script src="/main.js"></script>
 </body>
 

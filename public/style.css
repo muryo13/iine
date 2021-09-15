@@ -25,3 +25,25 @@ p.title {
     font-weight: bold;
     font-size: x-large;
 }
+
+.maru {
+    height: 75px;
+    width: 75px;
+    border-radius: 50%;
+    border-color: black;
+    line-height: 75px;
+    text-align: center;
+    background: gray;
+    font-size: 24px;
+    /* margin-left:20px; */
+    display: inline-block;
+}
+
+.maru-text {
+    font-weight: bold;
+    color: #FFF;
+}
+
+span {
+    text-align: center;
+}
