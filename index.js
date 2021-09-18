@@ -15,17 +15,27 @@ app.get('/', function (req, res) {
 });
 
 function onConnection(socket) {
-    participantNum++;
-    emitParticipantNum(socket);
 
-    socket.on('message', function (msg) {
-        // console.log(msg);
-        iineNum++;
-        discreteIine++;
-        socket.emit("message", "iineNum," + iineNum);
-        socket.broadcast.emit("message", "iineNum," + iineNum);
+    var room = null;
+    participantNum++;
+    
+    // Roomへ接続
+    socket.on("join", (msg) => {
+        room = msg;
+        console.log("room: " + msg);
+        socket.join(room);
+        emitParticipantNum(socket);
     });
 
+    // いいね
+    socket.on('iine', function () {
+        iineNum++;
+        discreteIine++;
+        io.to(room).emit("iineNum", iineNum);
+        // socket.broadcast.emit("iineNum", iineNum);
+    });
+
+    // 切断
     socket.on("disconnect", (reason) => {
         participantNum--;
         emitParticipantNum(socket);
@@ -33,16 +43,18 @@ function onConnection(socket) {
 
     function emitParticipantNum(socket) {
         console.log("participantNum = " + participantNum);
-        socket.emit("message", "participantNum," + participantNum);
-        socket.broadcast.emit("message", "participantNum," + participantNum);          
+        io.to(room).emit("participantNum", participantNum);
+        // socket.broadcast.emit("participantNum", participantNum);          
     }
 }
 
 io.on('connection', onConnection);
 
 setInterval(function () {
-    console.log("chart," + Date.now() + "," + discreteIine);
-    io.sockets.emit("message", "chart," + Date.now() + "," + discreteIine);
+    // if (discreteIine > 0) {
+        console.log("chart," + Date.now() + "," + discreteIine);
+        io.sockets.emit("chart", [Date.now(), discreteIine]);
+    // }
     discreteIine = 0;
 }, 5000);
 

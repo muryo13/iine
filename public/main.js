@@ -1,27 +1,17 @@
 'use strict';
 
 (function () {
-    var chartData = {x:0,y:0};
+    var chartData = { x: 0, y: 0 };
     const config = {
-        type: 'bar',
+        type: 'line',
         data: {
             datasets: [
                 {
-                    label: 'データセット 1',
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    borderColor: 'rgb(255, 99, 132)',
-                    borderDash: [8, 4],
-                    fill: true,
-                    data: []
+                    data: [],
+                    fill: 'start',
+                    lineTension: 0.1,
+                    spanGaps: true,
                 },
-                // {
-                //     label: 'データセット 2',
-                //     backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                //     borderColor: 'rgb(54, 162, 235)',
-                //     cubicInterpolationMode: 'monotone',
-                //     fill: true,
-                //     data: []
-                // }
             ]
         },
         options: {
@@ -37,13 +27,19 @@
                         delay: 1000,
                         refresh: 5000,
                         onRefresh: chart => {
-                            chart.data.datasets[0].data.push({
-                                x: Date.now(),
-                                y: chartData[2]
-                            });
+                            chart.data.datasets[0].data.push(chartData);
+                            chartData = { x: 0, y: 0 };
                         }
                     }
-                }
+                },
+                y: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+            },
+            legend: {
+                display: false
             }
         }
     }
@@ -51,6 +47,8 @@
     const myChart = new Chart(
         document.getElementById('myChart'), config
     );
+    myChart.data.datasets[0].data.push({x: Date.now(), y: 0});
+    myChart.update();
 
     var socket = io();
     var num = 0;
@@ -58,26 +56,28 @@
     socket.on('connect', function () {
         console.log('Socket opened.');
 
-        socket.on('message', function (e) {
-            console.log(e);
-            let message = e;
-            let words = message.split(',');
-            if (words[0] == 'iineNum') {
-                document.getElementById('allIineNum').innerText = words[1];
-            } else if (words[0] == 'participantNum') {
-                document.getElementById('participantNum').innerText = words[1];
-            } else if (words[0] == 'chart') {
-                console.log(words);
-                chartData = words;
-            }
-        })
+        socket.emit("join", '1');
+
+        socket.on("iineNum", (msg) => {
+            document.getElementById('allIineNum').innerText = msg;
+        });
+
+        socket.on("participantNum", (msg) => {
+            document.getElementById('participantNum').innerText = msg;
+        });
+
+        socket.on("chart", (msg) => {
+            // console.log(msg);
+            chartData = { x: msg[0], y: msg[1] };
+            console.log(chartData);
+        });
     });
 
     document.addEventListener('DOMContentLoaded', function (e) {
         // サーバーにデータを送る
-        document.getElementById('sample').addEventListener('click', function (e) {
+        document.getElementById('iineNum').addEventListener('click', function (e) {
             console.log("push button.");
-            socket.emit("message", 'iine');
+            socket.emit("iine");
             document.getElementById("iineNum").innerText = ++num;
         });
     });
