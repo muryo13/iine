@@ -18,7 +18,10 @@
             plugins: {
                 streaming: {
                     duration: 300000
-                }
+                },
+                legend: {
+                    display: false
+                },
             },
             scales: {
                 x: {
@@ -32,18 +35,13 @@
                         }
                     }
                 },
-                y: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
             },
-            legend: {
-                display: false
-            }
-        }
+            stepped: true
+        },
     }
 
+    Chart.defaults.scales.linear.min = 0;
+    // Chart.defaults.scales.linear.max = 10;
     const myChart = new Chart(
         document.getElementById('myChart'), config
     );
@@ -81,4 +79,6 @@
             document.getElementById("iineNum").innerText = ++num;
         });
     });
+
+    
 })();

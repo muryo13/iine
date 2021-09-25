@@ -11,8 +11,15 @@ var discreteIine = 0;
 
 app.use(express.static(__dirname + '/public'));
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+    // console.log(req);
+    res.sendFile(__dirname + '/public/checkin/index.html');
 });
+app.use(express.urlencoded({extended: true}));
+app.get("/checkin/", (req, res) => {
+    console.log(req.body);
+    var room = Number(req.body.num1);
+    res.sendFile(__dirname + "/room/index.html");
+})
 
 function onConnection(socket) {
 
