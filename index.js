@@ -21,6 +21,15 @@ app.get("/checkin/", (req, res) => {
     res.sendFile(__dirname + "/room/index.html");
 })
 
+app.get("/room/:number", (req, res) => {
+    console.log(req.params.number);
+    res.sendFile(__dirname + "/public/room/index.html");
+    // indexファイルはテンプレートにして、部屋番号で書き換えたものを渡す
+    // 部屋番号がなかったらエラーを返す
+    // 部屋情報はどうやって管理するか
+    // 部屋情報は、各種ステータス＋いいねログ
+})
+
 function onConnection(socket) {
 
     var room = null;
