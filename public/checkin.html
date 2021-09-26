@@ -4,7 +4,7 @@
 <head>
     <title>iine - check-in</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link href="checkin.css" rel="stylesheet">
+    <link href="/checkin.css" rel="stylesheet">
 </head>
 
 <body class="text-center">
@@ -20,7 +20,7 @@
         <input type="number" id="inputRoomNumber" class="form-control" placeholder="Room number" required autofocus>
         <p></p>
         <button class="btn btn-lg btn-primary btn-block" type="button" id="checkin">Check-in</button>
-        <button class="btn btn-lg btn-primary btn-block" type="submit" id="create-room"
+        <button class="btn btn-lg btn-primary btn-block" type="button" id="create-room"
             formnovalidate="novalidate">Create room</button>
         <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
     </form>
@@ -30,11 +30,15 @@
         crossorigin="anonymous"></script>
     <script>
         const checkinButton = document.getElementById("checkin");
-        checkinButton.addEventListener("click", function () {
-            console.log("ほげほげ1");
-            location.href = '/room/' + 1;
-
+        checkinButton.addEventListener("click", () => {
+            console.log("checkin: ");
+            location.href = '/room/' + document.getElementById("inputRoomNumber").value;
         });
+        const createButton = document.getElementById("create-room");
+        createButton.addEventListener("click", () => {
+            console.log("create room.");
+            location.href = '/create/';
+        })
     </script>
     <script>
         window.jQuery || document.write('<script src="/docs/4.3/assets/js/vendor/jquery-slim.min.js"><\/script>')

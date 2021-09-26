@@ -1,6 +1,15 @@
 'use strict';
 
+// 即時関数（ページ初期化）
 (function () {
+    // 部屋番号取得
+    var subs = location.pathname.split('/');
+    const roomNumber = subs[subs.length-1];
+    console.log("Checkin: " + roomNumber);
+    document.getElementById("room-number").innerText = "@" + roomNumber;
+
+
+    // グラフ初期化
     var chartData = { x: 0, y: 0 };
     const config = {
         type: 'line',
@@ -45,22 +54,23 @@
     const myChart = new Chart(
         document.getElementById('myChart'), config
     );
-    myChart.data.datasets[0].data.push({x: Date.now(), y: 0});
+    myChart.data.datasets[0].data.push({ x: Date.now(), y: 0 });
     myChart.update();
 
+    // websocket設定
     var socket = io();
     var num = 0;
 
     socket.on('connect', function () {
         console.log('Socket opened.');
 
-        socket.emit("join", '1');
+        socket.emit("join", roomNumber);
 
         socket.on("iineNum", (msg) => {
             document.getElementById('allIineNum').innerText = msg;
         });
 
-        socket.on("participantNum", (msg) => {
+        socket.on("roomParticipantNum", (msg) => {
             document.getElementById('participantNum').innerText = msg;
         });
 
@@ -80,5 +90,5 @@
         });
     });
 
-    
+
 })();
