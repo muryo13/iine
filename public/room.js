@@ -12,7 +12,7 @@
     // グラフ初期化
     var chartData = { x: 0, y: 0 };
     const config = {
-        type: 'line',
+        type: 'bar',
         data: {
             datasets: [
                 {
@@ -66,6 +66,10 @@
 
         socket.emit("join", roomNumber);
 
+        socket.on("history", (msg) => {
+            chartData = { x: msg[0], y: msg[1]};
+        });
+
         socket.on("iineNum", (msg) => {
             document.getElementById('allIineNum').innerText = msg;
         });
@@ -76,7 +80,7 @@
 
         socket.on("chart", (msg) => {
             // console.log(msg);
-            chartData = { x: msg[0], y: msg[1] };
+            chartData = { x: msg.date, y: msg.iine };
             console.log(chartData);
         });
     });
