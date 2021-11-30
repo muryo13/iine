@@ -10,7 +10,7 @@
 
 
     // グラフ初期化
-    var chartData = { x: 0, y: 0 };
+    var chartData = { date: 0, iine: 0 };
     const config = {
         type: 'bar',
         data: {
@@ -20,6 +20,7 @@
                     fill: 'start',
                     lineTension: 0.1,
                     spanGaps: true,
+                    backgroundColor: "coral"
                 },
             ]
         },
@@ -32,15 +33,19 @@
                     display: false
                 },
             },
+            parsing: {
+                xAxisKey: 'date',
+                yAxisKey: 'iine'
+            },
             scales: {
                 x: {
                     type: 'realtime',
                     realtime: {
-                        delay: 1000,
-                        refresh: 5000,
+                        // delay: 1000,
+                        refresh: 500,
                         onRefresh: chart => {
                             chart.data.datasets[0].data.push(chartData);
-                            chartData = { x: 0, y: 0 };
+                            chartData = { date: 0, iine: 0 };
                         }
                     }
                 },
@@ -54,7 +59,7 @@
     const myChart = new Chart(
         document.getElementById('myChart'), config
     );
-    myChart.data.datasets[0].data.push({ x: Date.now(), y: 0 });
+    myChart.data.datasets[0].data.push({ date: Date.now(), iine: 0 });
     myChart.update();
 
     // websocket設定
@@ -66,8 +71,11 @@
 
         socket.emit("join", roomNumber);
 
-        socket.on("history", (msg) => {
-            chartData = { x: msg[0], y: msg[1]};
+        // socket.emit("getWholePeriodChart", roomNumber);
+        socket.on("wholePeriodChart", (msg) => {
+            for (var i=0; i<msg.length; i++) {
+                myChart.data.datasets[0].data.push(msg[i]);
+            }
         });
 
         socket.on("iineNum", (msg) => {
@@ -80,7 +88,7 @@
 
         socket.on("chart", (msg) => {
             // console.log(msg);
-            chartData = { x: msg.date, y: msg.iine };
+            chartData = msg;
             console.log(chartData);
         });
     });
@@ -92,7 +100,18 @@
             socket.emit("iine");
             document.getElementById("iineNum").innerText = ++num;
         });
+
+        document.getElementById('dashboard').addEventListener('click', function (e) {
+            console.log("push button.");
+            location.href = '/dashboard/' + roomNumber;
+        });
     });
 
 
 })();
+
+window.onpageshow = function(event) {
+	if (event.persisted) {
+		 window.location.reload();
+	}
+};

@@ -16,14 +16,24 @@
         <div class=title>iine!!</div>
         <div id="room-number">@xxx</div>
         <p></p>
-        <canvas id="wholePeriodChart" height="72"></canvas>
+        <canvas id="wholePeriodChart" height="100"></canvas>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">iines</th>
+                </tr>
+            </thead>
+            <tbody id="ranking"></tbody>
+        </table>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/locale/ja.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
     <script src="/dashboard.js"></script>
 </body>
 

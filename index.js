@@ -8,28 +8,36 @@ const port = process.env.PORT || 3000;
 var participantNum = 0;
 var iineNum = 0;
 var iinePerUnitTime = 0;
+const defaultRoom = '1';
 
 // @todo 部屋情報はどうやって管理するか
 // 部屋情報は、部屋番号をキー、参加人数を値とする連想配列
-var rooms = {};
+var rooms = new Map();
+rooms.set(defaultRoom, 0);  // デフォルトルーム
 
 app.use(express.static(__dirname + '/public'));
+app.use(express.urlencoded({ extended: true }));
+
+// デフォルトページ（デモ向けにデフォルトルームに案内する）
 app.get('/', function (req, res) {
     // console.log(req);
-    res.sendFile(__dirname + '/public/checkin.html');
+    // res.sendFile(__dirname + '/public/checkin.html');
+    res.redirect('/room/' + defaultRoom);
 });
-app.use(express.urlencoded({ extended: true }));
+
+// チェックインページ
 app.get("/checkin/", (req, res) => {
     console.log(req.body);
     var room = Number(req.body.num1);
     res.sendFile(__dirname + "/public/room.html");
 })
 
-// チェックイン リクエスト（パスパラメータで部屋番号を受け取り）
+// 入室（パスパラメータで部屋番号を受け取り）
 app.get("/room/:number", (req, res) => {
     roomNumber = req.params.number;
     console.log(roomNumber);
-    if (roomNumber in rooms) {
+    console.log(rooms.keys());
+    if (rooms.has(roomNumber)) {
         // 部屋あり
         res.sendFile(__dirname + "/public/room.html");
         // 部屋番号はクライアントが指定してくるので知っているはず
@@ -39,7 +47,7 @@ app.get("/room/:number", (req, res) => {
         // 部屋が見つからない。初めてのアクセスか、すでに削除された場合
         // @todo チェックイン画面にリダイレクトするか、チェックイン画面で先にチェックしたい
         res.status(404);
-        res.end('お部屋が見つかりませんでした。\nまだ作成されていないか、すでに削除済みの可能性があります。 : ' + req.path);
+        res.end('お部屋が見つかりませんでした : ' + req.path);
     }
 })
 
@@ -49,27 +57,29 @@ app.get("/dashboard/:number", (req, res) => {
     console.log("dashboard:" + roomNumber);
     res.sendFile(__dirname + "/public/dashboard.html");
 })
+
 // 新しくつくる リクエスト
 // 作成に成功したら、お部屋にリダイレクト
 app.get("/create/", (req, res) => {
-    console.log("Request to create.");
+    roomNumber = req.params.number;
+    console.log("Request to create " + roomNumber);
     do {
         id = createId(5);
-    } while (id in rooms);
-    rooms[id] = 0;
+    } while (rooms.has(id));
+    rooms.set(id, 0);
     console.log("create: " + id);
     res.redirect('/room/' + id);
 })
 
-function createId( n ){
+function createId(n) {
     var CODE_TABLE = "0123456789";
-        // + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        // + "abcdefghijklmnopqrstuvwxyz";
+    // + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    // + "abcdefghijklmnopqrstuvwxyz";
     var r = "";
-    for (var i = 0, k = CODE_TABLE.length; i < n; i++){
+    for (var i = 0, k = CODE_TABLE.length; i < n; i++) {
         r += CODE_TABLE.charAt(Math.floor(k * Math.random()));
-	}
-	return r;
+    }
+    return r;
 }
 
 function point(date, iine) {
@@ -78,6 +88,10 @@ function point(date, iine) {
     obj.iine = iine;
     return obj;
 }
+
+// iine時系列データ（Map(timestamp, iineNum)）
+var iineHistory = [];
+var ranking = [point(Date.now(), 0)];
 
 function onConnection(socket) {
 
@@ -89,9 +103,9 @@ function onConnection(socket) {
         room = msg;
         console.log("room: " + msg);
         socket.join(room);
-        rooms[room]++;
+        rooms.set(room, rooms.get(room) + 1);
         emitRoomParticipantNum(socket, room);
-        io.to(socket.id).emit("chart", [Date.now(), 10]);
+        io.to(socket.id).emit("wholePeriodChart", iineHistory);
     });
 
     // いいね
@@ -108,10 +122,16 @@ function onConnection(socket) {
         io.to(socket.id).emit("wholePeriodChart", iineHistory);
     });
 
+    // ランキング
+    socket.on('getRanking', (msg) => {
+        console.log("getRanking");
+        io.to(socket.id).emit("ranking", ranking);
+    });
+
     // 切断
     socket.on("disconnect", (reason) => {
         participantNum--;
-        rooms[room]--;
+        rooms.set(room, rooms.get(room)-1);
         emitParticipantNum(socket);
         emitRoomParticipantNum(socket, room);
     });
@@ -123,17 +143,14 @@ function onConnection(socket) {
     }
 
     function emitRoomParticipantNum(socket, room) {
-        console.log("roomParticipantNum = " + rooms[room]);
-        io.to(room).emit("roomParticipantNum", rooms[room]);
+        console.log("roomParticipantNum = " + rooms.get(room));
+        io.to(room).emit("roomParticipantNum", rooms.get(room));
         // socket.broadcast.emit("participantNum", participantNum);          
     }
 }
 
 io.on('connection', onConnection);
 
-// iine時系列データ（Map(timestamp, iineNum)）
-var iineHistory = [];
-var ranking = [point(Date.now(), 0)];
 
 setInterval(function () {
     if (iinePerUnitTime > 0) {
@@ -142,7 +159,7 @@ setInterval(function () {
         io.sockets.emit("chart", iine);
         iineHistory.push(iine);
         // ランキング更新
-        for (i=0; i<ranking.length; i++) {
+        for (i = 0; i < ranking.length; i++) {
             if (ranking[i].iine < iinePerUnitTime) {
                 // 更新
                 ranking.splice(i, 0, iine);
