@@ -22,6 +22,8 @@
         <button class="btn btn-lg btn-primary btn-block" type="button" id="checkin">Check-in</button>
         <button class="btn btn-lg btn-primary btn-block" type="button" id="create-room"
             formnovalidate="novalidate">Create room</button>
+        <button class="btn btn-lg btn-primary btn-block" type="button" id="reset-room" F
+            formnovalidate="novalidate">Reset room</button>
         <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
     </form>
 
@@ -38,7 +40,12 @@
         createButton.addEventListener("click", () => {
             console.log("create room.");
             location.href = '/create/';
-        })
+        });
+        const resetButton = document.getElementById("reset-room");
+        resetButton.addEventListener("click", () => {
+            console.log("reset room.");
+            location.href = '/reset/' + document.getElementById("inputRoomNumber").value;
+        });
     </script>
     <script>
         window.jQuery || document.write('<script src="/docs/4.3/assets/js/vendor/jquery-slim.min.js"><\/script>')

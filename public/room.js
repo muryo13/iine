@@ -41,7 +41,6 @@
                 x: {
                     type: 'realtime',
                     realtime: {
-                        // delay: 1000,
                         refresh: 500,
                         onRefresh: chart => {
                             chart.data.datasets[0].data.push(chartData);

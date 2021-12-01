@@ -58,17 +58,26 @@ app.get("/dashboard/:number", (req, res) => {
     res.sendFile(__dirname + "/public/dashboard.html");
 })
 
-// 新しくつくる リクエスト
+// お部屋の作成 リクエスト
 // 作成に成功したら、お部屋にリダイレクト
 app.get("/create/", (req, res) => {
-    roomNumber = req.params.number;
     console.log("Request to create " + roomNumber);
     do {
-        id = createId(5);
+        id = createId(5);   // 5桁のランダムID
     } while (rooms.has(id));
     rooms.set(id, 0);
     console.log("create: " + id);
     res.redirect('/room/' + id);
+})
+
+// お部屋のリセット リクエスト
+// リセットしたらお部屋に移動
+app.get("/reset/:number", (req, res) => {
+    roomNumber = req.params.number;
+    console.log("Request to create " + roomNumber);
+    iineHistory = [];
+    ranking = [];
+    res.redirect('/room/' + roomNumber);
 })
 
 function createId(n) {
@@ -131,7 +140,7 @@ function onConnection(socket) {
     // 切断
     socket.on("disconnect", (reason) => {
         participantNum--;
-        rooms.set(room, rooms.get(room)-1);
+        rooms.set(room, rooms.get(room) - 1);
         emitParticipantNum(socket);
         emitRoomParticipantNum(socket, room);
     });
@@ -154,15 +163,19 @@ io.on('connection', onConnection);
 
 setInterval(function () {
     if (iinePerUnitTime > 0) {
-        let iine = point(Date.now(), iinePerUnitTime);
-        console.log("chart," + iine.date + "," + iine.iine);
-        io.sockets.emit("chart", iine);
-        iineHistory.push(iine);
+        let data = point(Date.now(), iinePerUnitTime);
+        console.log("chart," + data.date + "," + data.iine);
+        io.sockets.emit("chart", data);
+        iineHistory.push(data);
+    
         // ランキング更新
+        if (ranking.length == 0) {
+            ranking.push(data);
+        }
         for (i = 0; i < ranking.length; i++) {
             if (ranking[i].iine < iinePerUnitTime) {
                 // 更新
-                ranking.splice(i, 0, iine);
+                ranking.splice(i, 0, data);
                 if (ranking.length > 10) {
                     ranking.pop();
                 }
