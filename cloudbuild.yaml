@@ -23,7 +23,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--region'
-      - 'us-central1'
+      - 'asia-northeast2'
 substitutions:
-  _REGION: us-central1
-  _SERVICE_NAME: helloworld
+  _REGION: asia-northeast2
+  _SERVICE_NAME: iine
