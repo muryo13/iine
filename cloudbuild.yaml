@@ -1,0 +1,29 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-docker-image-from-dockerfile'
+    args: 
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA'
+      - '.'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-docker-image-to-gcr'
+    args: 
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}'
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy-cloud-run'
+    args: 
+      - 'beta'
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA'
+      - '--platform'
+      - 'managed'
+      - '--region'
+      - 'us-central1'
+substitutions:
+  _REGION: us-central1
+  _SERVICE_NAME: helloworld
