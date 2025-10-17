@@ -34,7 +34,7 @@ app.get("/checkin/", (req, res) => {
 
 // 入室（パスパラメータで部屋番号を受け取り）
 app.get("/room/:number", (req, res) => {
-    roomNumber = req.params.number;
+    const roomNumber = req.params.number;
     console.log(roomNumber);
     console.log(rooms.keys());
     if (rooms.has(roomNumber)) {
@@ -53,7 +53,7 @@ app.get("/room/:number", (req, res) => {
 
 // ダッシュボード（パスパラメータで部屋番号を受け取り）
 app.get("/dashboard/:number", (req, res) => {
-    roomNumber = req.params.number;
+    const roomNumber = req.params.number;
     console.log("dashboard:" + roomNumber);
     res.sendFile(__dirname + "/public/dashboard.html");
 })
@@ -61,8 +61,9 @@ app.get("/dashboard/:number", (req, res) => {
 // 新しくつくる リクエスト
 // 作成に成功したら、お部屋にリダイレクト
 app.get("/create/", (req, res) => {
-    roomNumber = req.params.number;
+    const roomNumber = req.params.number;
     console.log("Request to create " + roomNumber);
+    let id;
     do {
         id = createId(5);
     } while (rooms.has(id));
@@ -159,7 +160,7 @@ setInterval(function () {
         io.sockets.emit("chart", iine);
         iineHistory.push(iine);
         // ランキング更新
-        for (i = 0; i < ranking.length; i++) {
+        for (let i = 0; i < ranking.length; i++) {
             if (ranking[i].iine < iinePerUnitTime) {
                 // 更新
                 ranking.splice(i, 0, iine);
@@ -168,7 +169,7 @@ setInterval(function () {
                 }
                 // ランキング出力
                 // console.log("Updated ranking!");
-                // for (j=0; j<ranking.length; j++) {
+                // for (let j=0; j<ranking.length; j++) {
                 //     console.log( j + ":" + ranking[j].date + ", " + ranking[j].iine)
                 // }
                 break;
